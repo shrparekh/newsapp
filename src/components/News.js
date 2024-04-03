@@ -15,28 +15,34 @@ export class News extends Component {
     category: PropTypes.string,
   };
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
     this.state = {
       articles: [],
       loading: false,
       page: 1,
     };
+    document.title = `${this.props.category} - news By Shrey`;
   }
   async componentDidMount() {
+    this.props.setProgress(10);
     let url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=753201a411a64bf59ecd69009e03cbad&page=1&pageSize=${this.props.pageSize}`;
     this.setState({ loading: true });
     let data = await fetch(url);
+    this.props.setProgress(30);
     let parsedData = await data.json();
+    this.props.setProgress(70);
     this.setState({
       articles: parsedData.articles,
       totalResults: parsedData.totalResults,
       loading: false,
     });
+    this.props.setProgress(100);
   }
   handlePreviousClick = async () => {
-    console.log("previous");
+    this.props.setProgress(10);
+
     let url = `https://newsapi.org/v2/top-headlines?country=${
       this.props.country
     }&category=${
@@ -46,16 +52,20 @@ export class News extends Component {
     }&pageSize=${this.props.pageSize}`;
     this.setState({ loading: true });
     let data = await fetch(url);
+    this.props.setProgress(30);
     let parsedData = await data.json();
+    this.props.setProgress(70);
 
     this.setState({
       page: this.state.page - 1,
       articles: parsedData.articles,
       loading: false,
     });
+    this.props.setProgress(100);
   };
   handleNextClick = async () => {
-    console.log("next");
+    this.props.setProgress(10);
+
     if (
       this.state.page + 1 >
       Math.ceil(this.state.totalResults / this.props.pageSize)
@@ -70,24 +80,30 @@ export class News extends Component {
       }&pageSize=${this.props.pageSize}`;
       this.setState({ loading: true });
       let data = await fetch(url);
+      this.props.setProgress(30);
       let parsedData = await data.json();
+      this.props.setProgress(70);
 
       this.setState({
         page: this.state.page + 1,
         articles: parsedData.articles,
         loading: false,
       });
+      this.props.setProgress(100);
     }
   };
 
   render() {
     return (
       <div className="container my-3">
-        <h1 className="text-center">News by Shrey -Top headlines</h1>
+        <h1 className="text-center " style={{ margin: "90px" }}>
+          News by Shrey -Top headlines
+        </h1>
         {this.state.loading && <Spinner />}
 
         <div className="row">
           {!this.state.loading &&
+            this.state.articles &&
             this.state.articles.map((element) => {
               return (
                 <div className="col-md-4" key={element.url}>
